@@ -1,0 +1,58 @@
+volumes:
+  react-dist:
+  postgres_data:
+
+services:
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    volumes:
+      - react-dist:/dist
+    command: >
+      sh -c "
+      npm ci &&
+      npm run build &&
+      cp -r dist/. /dist
+      "
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    environment:
+      DB_NAME: mydb
+      DB_USER: shawn
+      DB_PASSWORD: shawn4823
+      DB_HOST: db
+      DB_PORT: 5432
+
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: shawn
+      POSTGRES_PASSWORD: shawn4823
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: react-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - react-dist:/usr/share/nginx/html
+    depends_on:
+      - frontend
+      - backend
