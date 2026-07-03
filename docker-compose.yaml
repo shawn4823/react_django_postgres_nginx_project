@@ -1,9 +1,15 @@
+version: "3.9"
+
 volumes:
   react-dist:
   postgres_data:
+  jenkins_home:
 
 services:
 
+  ############################
+  # Frontend (React build)
+  ############################
   frontend:
     build:
       context: ./frontend
@@ -17,6 +23,9 @@ services:
       cp -r dist/. /dist
       "
 
+  ############################
+  # Backend (Django)
+  ############################
   backend:
     build:
       context: ./backend
@@ -32,6 +41,9 @@ services:
       DB_HOST: db
       DB_PORT: 5432
 
+  ############################
+  # Database (PostgreSQL)
+  ############################
   db:
     image: postgres:16
     container_name: postgres-db
@@ -45,6 +57,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  ############################
+  # Nginx (React + API Proxy)
+  ############################
   nginx:
     build:
       context: ./nginx
@@ -56,3 +71,18 @@ services:
     depends_on:
       - frontend
       - backend
+
+  ############################
+  # Jenkins (CI/CD)
+  ############################
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
