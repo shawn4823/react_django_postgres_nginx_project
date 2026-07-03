@@ -99,7 +99,7 @@ DATABASES = {
         'NAME': 'mydb',
         'USER': 'shawn',
         'PASSWORD': 'shawn4823',
-        'HOST': 'localhost',  # 또는 데이터베이스 서버 주소
+        'HOST': 'db',  # 또는 데이터베이스 서버 주소
         'PORT': '5432',       # PostgreSQL 기본 포트
     }
 }
